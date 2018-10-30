@@ -1,4 +1,4 @@
-#quick-lab
+# quick-lab
 
 This is a quick and dirty way to get some ec2 micros rolling and distribute keys per user to a bastion. This isn't the prettiest way to go about it, but is a great way to get students slamming on keyboards quickly.
 
