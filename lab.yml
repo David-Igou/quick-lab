@@ -1,0 +1,36 @@
+---
+- hosts: vcu-lug-bastion
+  become: true
+  vars_files: students.yml
+  tasks:
+  - name: Check length
+    fail: 
+      msg: "Number of students not equal to lab instances"
+    when: "{{ students|length }} != {{ groups['vcu-lug']|length }}"
+
+  - name: add users
+    user:
+      name: "{{item}}"
+    loop: "{{students}}"
+
+  - name: authorize users
+    authorized_key:
+      user: "{{item}}"
+      state: present
+      key: "{{ lookup('file', 'id_rsa.pub') }}"
+    loop: "{{students}}"
+
+  - name: add private keys
+    copy:
+      src: vcu-lug.pem
+      dest: "/home/{{ item }}/.ssh/id_rsa"
+      mode: 0600
+      group: "{{item}}" 
+      owner: "{{item}}"
+    loop: "{{students}}"
+
+  - name: add IP of server
+    shell: "echo {{ item.0 }} > /home/{{ item.1 }}/hostname"
+    with_together:
+      - "{{ groups['vcu-lug'] }}"
+      - "{{ students }}"
